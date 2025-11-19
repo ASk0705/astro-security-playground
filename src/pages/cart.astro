@@ -1,0 +1,45 @@
+---
+import '../styles.css';
+---
+<html>
+  <head><meta charset="utf-8"><title>Cart</title></head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>Your cart</h2>
+        <div id="box"></div>
+        <div style="margin-top:12px"><button id="checkout" class="btn">Checkout (simulate)</button></div>
+      </div>
+    </div>
+    <script>
+      async function render(){
+        const cart = JSON.parse(localStorage.getItem('cart')||'[]');
+        if(cart.length===0){document.getElementById('box').textContent='Cart empty'; return;}
+        const r = await fetch('/api/products'); const j = await r.json();
+        const products = new Map((j.products||[]).map(p=>[p.id,p]));
+        const box = document.getElementById('box'); box.innerHTML='';
+        let total=0;
+        cart.forEach(it=>{
+          const p = products.get(it.id);
+          const line = document.createElement('div');
+          const price = (p.price_cents/100)*it.qty;
+          total+=price;
+          line.innerHTML = `${p.name} × ${it.qty} — ${price.toFixed(2)} USD`;
+          box.appendChild(line);
+        });
+        box.appendChild(document.createElement('hr'));
+        box.appendChild(document.createTextNode('Total: ' + total.toFixed(2) + ' USD'));
+      }
+
+      document.getElementById('checkout').addEventListener('click', async ()=>{
+        const cart = JSON.parse(localStorage.getItem('cart')||'[]');
+        const r = await fetch('/api/cart', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cart })});
+        const j = await r.json();
+        if(r.ok && j.ok){ alert('Order saved'); localStorage.removeItem('cart'); render(); }
+        else alert('Checkout failed: ' + (j.error || r.status));
+      });
+
+      render();
+    </script>
+  </body>
+</html>

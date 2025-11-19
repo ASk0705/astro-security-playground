@@ -1,0 +1,41 @@
+---
+import '../styles.css';
+---
+<html>
+  <head><meta charset="utf-8"><title>Catalog</title></head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>Catalog</h2>
+        <div id="grid" class="grid"></div>
+      </div>
+    </div>
+
+    <script>
+      async function load(){
+        const r = await fetch('/api/products');
+        const j = await r.json();
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        (j.products||[]).forEach(p=>{
+          const el = document.createElement('div');
+          el.className = 'product';
+          el.innerHTML = `<strong>${p.name}</strong><div class="small">${(p.price_cents/100).toFixed(2)} USD</div><div style="margin-top:8px"><button class="btn add" data-id="${p.id}">Add</button> <a class="btn" href="/product?id=${p.id}">View</a></div>`;
+          grid.appendChild(el);
+        });
+        grid.addEventListener('click', ev=>{
+          if(ev.target.matches('button.add')){
+            const id = ev.target.dataset.id;
+            const cart = JSON.parse(localStorage.getItem('cart')||'[]');
+            const item = cart.find(x=>x.id==id);
+            if(item) item.qty++;
+            else cart.push({id, qty:1});
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Added to cart');
+          }
+        });
+      }
+      load();
+    </script>
+  </body>
+</html>

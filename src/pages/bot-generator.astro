@@ -1,0 +1,31 @@
+---
+import '../styles.css';
+---
+<html>
+  <head><meta charset="utf-8"><title>Bot Generator</title></head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>Bot generator (simulate requests)</h2>
+        <label>Requests</label><input id="n" type="number" value="50" />
+        <label>Delay ms between</label><input id="d" type="number" value="20" />
+        <button id="go" class="btn">Start</button>
+        <pre id="out" class="small">Ready</pre>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('go').addEventListener('click', async ()=>{
+        const n = Number(document.getElementById('n').value||50);
+        const d = Number(document.getElementById('d').value||20);
+        const out = document.getElementById('out'); out.textContent='Starting...';
+        for(let i=0;i<n;i++){
+          fetch('/api/bot').catch(()=>{});
+          out.textContent = `Sent ${i+1}/${n}`;
+          await new Promise(r=>setTimeout(r,d));
+        }
+        out.textContent = 'Done';
+      });
+    </script>
+  </body>
+</html>

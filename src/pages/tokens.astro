@@ -1,0 +1,39 @@
+---
+import '../styles.css';
+---
+<html>
+  <head><meta charset="utf-8"><title>Tokens</title></head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>Tokens</h2>
+        <label>Team name</label><input id="team" />
+        <button id="req" class="btn">Request Token</button>
+        <div style="margin-top:12px"><h3>Issued tokens</h3><div id="list" class="small"></div></div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('req').addEventListener('click', async ()=>{
+        const team = document.getElementById('team').value || 'TEAM';
+        const r = await fetch('/api/tokens', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ team })});
+        const j = await r.json();
+        if(r.ok && j.token) { alert('Token: '+j.token); loadList(); }
+      });
+      async function loadList(){
+        const r = await fetch('/api/tokens');
+        const j = await r.json();
+        const el = document.getElementById('list');
+        el.innerHTML = (j.tokens||[]).map(t=>`<div>${t.token} — ${t.team} — ${t.done?'<em>done</em>':'<button data-token="'+t.token+'" class="mark">Mark Done</button>'}</div>`).join('');
+        el.addEventListener('click', async ev=>{
+          if(ev.target.matches('button.mark')) {
+            const token = ev.target.dataset.token;
+            await fetch('/api/tokens', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token })});
+            loadList();
+          }
+        });
+      }
+      loadList();
+    </script>
+  </body>
+</html>
