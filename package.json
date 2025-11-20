@@ -1,12 +1,10 @@
 {
   "name": "astro-security-playground",
-  "type": "module",
   "version": "1.0.0",
-  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "build": "astro build"
   },
   "dependencies": {
     "astro": "^4.16.19",
